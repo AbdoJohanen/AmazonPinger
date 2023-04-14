@@ -40,7 +40,6 @@ class DealsCog(commands.Cog):
             if self.scrapers.amazon_old:
                 for channel in self.bot.allowed_channels:
                     for amaz in amazon:
-                        print(amaz.url)
                         await channel.send(content=f'@everyone product on amazon.se\n{amaz.name}\n{amaz.price}\n{amaz.url}')
                         await asyncio.sleep(2)
         except:

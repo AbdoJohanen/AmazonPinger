@@ -13,7 +13,7 @@ class DealsCog(commands.Cog):
         self.logger.info('DealsCog unloading')
         self.scrape.cancel()
 
-    @tasks.loop(seconds=5)
+    @tasks.loop(seconds=10)
     async def scrape(self):
         self.logger.info('DealsCog started')
         try:
@@ -37,7 +37,7 @@ class DealsCog(commands.Cog):
             self.logger.error(f'Failed to scrape: swedroid.se')
         try:
             amazon = self.scrapers.scrape_amazon()
-            if self.scrapers.amazon_old:
+            if self.scrapers.amazon:
                 for channel in self.bot.allowed_channels:
                     for amaz in amazon:
                         await channel.send(content=f'@everyone product on amazon.se\n{amaz.name}\n{amaz.price}\n{amaz.url}')

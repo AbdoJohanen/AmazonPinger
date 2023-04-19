@@ -16,15 +16,15 @@ class DealsCog(commands.Cog):
     @tasks.loop(seconds=30)
     async def scrape(self):
         self.logger.info('DealsCog started')
-        try:
-            adealsweden = self.scrapers.scrape_adealsweden()
-            if self.scrapers.adealsweden_old:
-                for channel in self.bot.allowed_channels:
-                    for adeal in adealsweden:
-                        await channel.send(content=f'new deal from adealsweden.com\n{adeal.name}\n{adeal.price}\n{adeal.url}')
-                        await asyncio.sleep(2)
-        except:
-            self.logger.error(f'Failed to scrape: adealsweden.com')
+        # try:
+        #     adealsweden = self.scrapers.scrape_adealsweden()
+        #     if self.scrapers.adealsweden_old:
+        #         for channel in self.bot.allowed_channels:
+        #             for adeal in adealsweden:
+        #                 await channel.send(content=f'new deal from adealsweden.com\n{adeal.name}\n{adeal.price}\n{adeal.url}')
+        #                 await asyncio.sleep(2)
+        # except:
+        #     self.logger.error(f'Failed to scrape: adealsweden.com')
         try:
             swedroid = self.scrapers.scrape_swedroid()
             if self.scrapers.swedroid_old:

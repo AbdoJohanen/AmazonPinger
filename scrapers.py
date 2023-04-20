@@ -2,10 +2,8 @@ import requests, logging, re, os, random
 from models import Adealsweden, Swedroid, Amazon
 from bs4 import BeautifulSoup
 from collections import deque
-from dotenv import load_dotenv
 
 
-# load_dotenv()
 AMAZON_LINK = 'AMAZON_LINK'
 ADEALSWEDEN = 'https://www.adealsweden.com/deals/8/'
 SWEDROID_USERNAME = 'SWEDROID_USERNAME'

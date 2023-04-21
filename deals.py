@@ -23,8 +23,9 @@ class DealsCog(commands.Cog):
                     for adeal in adealsweden:
                         await channel.send(f'@everyone new deal from adealsweden.com\n{adeal.name}\n{adeal.price}\n{adeal.url}')
                         await asyncio.sleep(2)
-        except:
+        except Exception as e:
             self.logger.error(f'Failed to scrape: adealsweden.com')
+            self.logger.error(e)
         try:
             swedroid = self.scrapers.scrape_swedroid()
             if self.scrapers.swedroid_old:
@@ -33,8 +34,9 @@ class DealsCog(commands.Cog):
                         url = droid.url.split('?')[0]
                         await channel.send(f'@everyone new deal from swedroid.se\n{url}')
                         await asyncio.sleep(2)
-        except:
+        except Exception as e:
             self.logger.error(f'Failed to scrape: swedroid.se')
+            self.logger.error(e)
         try:
             amazon = self.scrapers.scrape_amazon()
             if self.scrapers.amazon_old:
@@ -42,8 +44,9 @@ class DealsCog(commands.Cog):
                     for amaz in amazon:
                         await channel.send(f'@everyone product on amazon.com\n{amaz.name}\n{amaz.price}\n{amaz.url}')
                         await asyncio.sleep(2)
-        except:
+        except Exception as e:
             self.logger.error(f'Failed to scrape: amazon.se')
+            self.logger.error(e)
 
     @scrape.before_loop
     async def before_printer(self):

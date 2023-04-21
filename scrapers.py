@@ -47,13 +47,13 @@ class Scrapers():
                     real_url = requests.get(url_matches[i]).url.split('?')[0]
                     if real_url == 'https://www.amazon.se/s':
                         real_url = requests.get(url_matches[i]).url
-                    name_match = name_matches[i]
-                    if '&#038;' in name_match:
-                        name_match = name_match.replace('&#038;', '&')
+                    name_match = n
+                    if '&#8211;' in name_match:
+                        name_match = name_match.replace('&#8211;', '-')
                     ad = Adealsweden(name_match, ''.join(prices_matches[i]).strip(), real_url)
                     if i == 0:
                         tmp = ad
-                    if self.adealsweden_old.name == n:
+                    if self.adealsweden_old.name == name_match:
                         break
                     self.adealsweden.append(ad)
                 self.adealsweden_old = tmp
@@ -62,8 +62,8 @@ class Scrapers():
                 if real_url == 'https://www.amazon.se/s':
                     real_url = requests.get(url_matches[0]).url
                 name_match = name_matches[0]
-                if '&#038;' in name_match:
-                    name_match = name_match.replace('&#038;', '&')
+                if '&#8211;' in name_match:
+                    name_match = name_match.replace('&#8211;', '-')
                 ad = Adealsweden(name_match, ''.join(prices_matches[0]).strip(), real_url)
                 self.adealsweden_old = ad
         self.logger.info(f'Scraped adealsweden.com: {self.adealsweden}')
@@ -106,12 +106,11 @@ class Scrapers():
     def scrape_amazon(self):
         self.logger.info('Scraping amazon')
         self.amazon.clear()
-        proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
         HEADERS = ({'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
         ({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
         ({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.47', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
         ({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'})
-        response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=5)
+        response = requests.get(os.getenv(AMAZON_LINK), headers=random.choice(HEADERS), timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
         divs = soup.find(attrs={"class":"s-main-slot"}).findAll(attrs={"class":"s-result-item"})
         data_asin_list = [div["data-asin"] for div in divs if "data-asin" in div.attrs]

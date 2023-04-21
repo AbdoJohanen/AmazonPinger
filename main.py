@@ -33,7 +33,8 @@ class DealsBot(commands.Bot):
                             await channel.send('Successfully connected!')
                             self.allowed_channels.append(channel)
                             break
-        await self.add_cog(DealsCog(self))
+        if not self.get_cog('DealsCog'):
+            await self.add_cog(DealsCog(self))
 
 def main ():
     logger = logging.getLogger(LOGGER)

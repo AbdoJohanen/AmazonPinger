@@ -111,7 +111,7 @@ class Scrapers():
         ({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
         ({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.47', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
         ({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'})
-        response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=5)
+        response = requests.get(os.getenv(AMAZON_LINK), headers=random.choice(HEADERS), timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
         self.logger.info(soup)
         divs = soup.find(attrs={"class":"s-main-slot"}).findAll(attrs={"class":"s-result-item"})

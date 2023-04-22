@@ -106,28 +106,33 @@ class Scrapers():
     def scrape_amazon(self):
         self.logger.info('Scraping amazon')
         self.amazon.clear()
+        proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
         HEADERS = ({'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
         ({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
         ({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.47', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
         ({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'})
-        response = requests.get(os.getenv(AMAZON_LINK), headers=random.choice(HEADERS), timeout=5)
+        response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
         divs = soup.find(attrs={"class":"s-main-slot"}).findAll(attrs={"class":"s-result-item"})
         data_asin_list = [div["data-asin"] for div in divs if "data-asin" in div.attrs]
-        url_matches = [x for x in data_asin_list if x]
-        url_matches = list(dict.fromkeys(url_matches))
-        url_matches = [f'https://www.amazon.se/dp/{url}' for url in url_matches]
+        asin_list = [x for x in data_asin_list if x]
+        url_matches = [f'https://www.amazon.se/dp/{url}' for url in asin_list]
         if url_matches:
             if self.amazon_old:
                 new_urls = []
                 for i, u in enumerate(url_matches):
-                    deal_price = soup.findAll(attrs={"class":"a-price"})[i].findAll('span')[0].text
-                    deal_title = soup.findAll(attrs={"class":"s-title-instructions-style"})[i].find('h2').text
+                    try:
+                        deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
+                    except:
+                        deal_price = None
+                    try:
+                        deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
+                    except:
+                        deal_title = None
                     amaz = Amazon(deal_title, deal_price, u)
                     if amaz not in self.amazon_old:
                         new_urls.append(amaz)
                         self.amazon_old.append(amaz)
-
                 if len(new_urls) > 3:
                     self.logger.info("New products bug")
                     new_urls = []
@@ -136,8 +141,14 @@ class Scrapers():
                     self.amazon = new_urls
             else:
                 for i, u in enumerate(url_matches):
-                    deal_price = soup.findAll(attrs={"class":"a-price"})[i].findAll('span')[0].text
-                    deal_title = soup.findAll(attrs={"class":"s-title-instructions-style"})[i].find('h2').text
+                    try:
+                        deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
+                    except:
+                        deal_price = None
+                    try:
+                        deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
+                    except:
+                        deal_title = None
                     amaz = Amazon(deal_title, deal_price, u)
                     self.amazon_old.append(amaz)
         self.logger.info(f'Scraped amazon.se: {self.amazon}')

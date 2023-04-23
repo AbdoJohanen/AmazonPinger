@@ -129,7 +129,7 @@ class Scrapers():
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
                     except:
                         deal_title = None
-                    amaz = Amazon(deal_title, deal_price, u)
+                    amaz = Amazon(deal_title, deal_price, u, None)
                     if amaz.url not in [x.url for x in self.amazon_old]:
                         product_asin = amaz.url.split("/")[-1]
 
@@ -169,7 +169,7 @@ class Scrapers():
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
                     except:
                         deal_title = None
-                    amaz = Amazon(deal_title, deal_price, u)
+                    amaz = Amazon(deal_title, deal_price, u, None)
                     self.amazon_old.append(amaz)
                 for i, u in enumerate(url_matches):
                     try:
@@ -180,7 +180,7 @@ class Scrapers():
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
                     except:
                         deal_title = None
-                    amaz = Amazon(deal_title, deal_price, u)
+                    amaz = Amazon(deal_title, deal_price, u, None)
                     self.amazon_old.append(amaz)
         self.logger.info(f'Scraped amazon.se: {self.amazon}')
         return self.amazon

@@ -81,8 +81,8 @@ class Scrapers():
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
         session = requests.Session()
         session.get('https://swedroid.se/forum/login')
-        response = session.post(url=SWEDROID_LOGIN, proxies=proxies, timeout=5, headers=HEADERS, data=f'login={os.getenv(SWEDROID_USERNAME)}&register=0&password={os.getenv(SWEDROID_PASSWORD)}&remember=1&cookie_check=1&_xfToken=&redirect=https%3A%2F%2Fswedroid.se%2Fforum%2F')
-        response = session.get(SWEDROID, timeout=5)
+        response = session.post(SWEDROID_LOGIN, proxies=proxies, timeout=5, headers=HEADERS, data=f'login={os.getenv(SWEDROID_USERNAME)}&register=0&password={os.getenv(SWEDROID_PASSWORD)}&remember=1&cookie_check=1&_xfToken=&redirect=https%3A%2F%2Fswedroid.se%2Fforum%2F')
+        response = session.get(SWEDROID, proxies=proxies, timeout=5)
         response_text = response.text
         last_pattern = r'data\-last\=\"(\d+)\"'
         last_matches = re.findall(last_pattern, response_text, re.MULTILINE)

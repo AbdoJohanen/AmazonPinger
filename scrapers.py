@@ -166,8 +166,6 @@ class Scrapers():
                         deal_title = None
                     amaz = Amazon(deal_title, deal_price, u)
                     self.amazon_old.append(amaz)
-        for x in self.amazon_old:
-            self.logger.info(x)
         self.logger.info(f'Scraped amazon.se: {self.amazon}')
         return self.amazon
     

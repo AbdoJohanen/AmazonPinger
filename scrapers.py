@@ -113,8 +113,7 @@ class Scrapers():
         ({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'})
         response = requests.get(os.getenv(AMAZON_LINK), headers=random.choice(HEADERS), timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
-        divs = soup.find(attrs={"class":"s-main-slot"}).findAll(attrs={"class":"s-result-item"})
-        data_asin_list = [div["data-asin"] for div in divs if "data-asin" in div.attrs]
+        data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
         asin_list = [x for x in data_asin_list if x]
         url_matches = [f'https://www.amazon.se/dp/{url}' for url in asin_list]
         if url_matches:
@@ -140,6 +139,22 @@ class Scrapers():
                     self.logger.info("Found new deals!")
                     self.amazon = new_urls
             else:
+                response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', headers=random.choice(HEADERS), timeout=5)
+                soup_page2 = BeautifulSoup(response_page2.text, 'html.parser')
+                data_asin_list = [div["data-asin"] for div in soup_page2.select('.s-result-item[data-asin]')]
+                asin_list = [x for x in data_asin_list if x]
+                page2_urls = [f'https://www.amazon.se/dp/{url}' for url in asin_list]
+                for i, u in enumerate(page2_urls):
+                    try:
+                        deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
+                    except:
+                        deal_price = None
+                    try:
+                        deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
+                    except:
+                        deal_title = None
+                    amaz = Amazon(deal_title, deal_price, u)
+                    self.amazon_old.append(amaz)
                 for i, u in enumerate(url_matches):
                     try:
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
@@ -151,6 +166,8 @@ class Scrapers():
                         deal_title = None
                     amaz = Amazon(deal_title, deal_price, u)
                     self.amazon_old.append(amaz)
+        for x in self.amazon_old:
+            self.logger.info(x)
         self.logger.info(f'Scraped amazon.se: {self.amazon}')
         return self.amazon
     

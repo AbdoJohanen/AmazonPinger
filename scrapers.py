@@ -5,7 +5,7 @@ from collections import deque
 
 
 AMAZON_LINK = 'AMAZON_LINK'
-ADEALSWEDEN = 'https://www.adealsweden.com/deals/8/'
+ADEALSWEDEN = 'https://www.adealsweden.com/deals/'
 SWEDROID_USERNAME = 'SWEDROID_USERNAME'
 SWEDROID_PASSWORD = 'SWEDROID_PASSWORD'
 SWEDROID_LOGIN = 'https://swedroid.se/forum/login/login'
@@ -14,6 +14,11 @@ PROXY_USERNAME = 'PROXY_USERNAME'
 PROXY_PASSWORD = 'PROXY_PASSWORD'
 PROXY_HOSTS = ['se.socks.nordhold.net', 'stockholm.se.socks.nordhold.net']
 HAGGLEZON = 'https://www.hagglezon.com/en/s/'
+
+HEADERS = ({'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
+({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
+({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.47', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
+({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'})
 
 PROXIES = {
     'http': f'socks5://{{PROXY_USERNAME}}:{{PROXY_PASSWORD}}@{{PROXY_HOST}}:1080'
@@ -33,11 +38,11 @@ class Scrapers():
     def scrape_adealsweden(self):
         self.logger.info('Scraping adealsweden')
         self.adealsweden.clear()
-        response = requests.get(ADEALSWEDEN, timeout=5)
+        response = requests.get(ADEALSWEDEN, headers=random.choice(HEADERS), timeout=5)
         response_text = response.text
         name_pattern = r'<a\shref\=\"https\:\/\/www\.adealsweden\.com\/[\w\S]+\/\d+\/\"\starget.*>(.*)<'
         price_pattern = r'\<em\>(.*)\<\/em\>\<\/strong\>(.*)\<\/p\>'
-        url_pattern = r'\"(https://amzn\.to.*)\"\s'
+        url_pattern = r'(?<!>)https://amzn\.to/[^\s"]+'
         name_matches = re.findall(name_pattern, response_text, re.MULTILINE)
         prices_matches = re.findall(price_pattern, response_text, re.MULTILINE)
         url_matches = re.findall(url_pattern, response_text, re.MULTILINE)
@@ -74,10 +79,9 @@ class Scrapers():
         self.logger.info('Scraping swedroid')
         self.swedroid.clear()
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         session = requests.Session()
         session.get('https://swedroid.se/forum/login')
-        response = session.post(url=SWEDROID_LOGIN, proxies=proxies, timeout=5, headers=headers, data=f'login={os.getenv(SWEDROID_USERNAME)}&register=0&password={os.getenv(SWEDROID_PASSWORD)}&remember=1&cookie_check=1&_xfToken=&redirect=https%3A%2F%2Fswedroid.se%2Fforum%2F')
+        response = session.post(url=SWEDROID_LOGIN, proxies=proxies, timeout=5, headers=HEADERS, data=f'login={os.getenv(SWEDROID_USERNAME)}&register=0&password={os.getenv(SWEDROID_PASSWORD)}&remember=1&cookie_check=1&_xfToken=&redirect=https%3A%2F%2Fswedroid.se%2Fforum%2F')
         response = session.get(SWEDROID, timeout=5)
         response_text = response.text
         last_pattern = r'data\-last\=\"(\d+)\"'
@@ -108,10 +112,6 @@ class Scrapers():
         self.logger.info('Scraping amazon')
         self.amazon.clear() 
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
-        HEADERS = ({'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
-        ({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
-        ({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.47', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
-        ({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'})
         response = requests.get(os.getenv(AMAZON_LINK), headers=random.choice(HEADERS), timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
         data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]

@@ -129,10 +129,10 @@ class Scrapers():
                     except:
                         deal_title = None
                     amaz = Amazon(deal_title, deal_price, u)
-                    if amaz not in self.amazon_old:
+                    if amaz.url not in [x.url for x in self.amazon_old]:
                         new_urls.append(amaz)
                         self.amazon_old.append(amaz)
-                if len(new_urls) > 3:
+                if len(new_urls) > 6:
                     self.logger.info("New products bug")
                     new_urls = []
                 elif new_urls:

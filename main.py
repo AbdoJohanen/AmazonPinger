@@ -28,11 +28,12 @@ class DealsBot(commands.Bot):
                 self.logger.info(f'Connected to server: {guild}')
                 for channel in guild.channels:
                     for c in self.channels:
-                        if c in channel.name and channel.type.name == 'text': # check if whitelisted channel
-                            self.logger.info(f'Found channel for posting deals: {channel.name}')
-                            await channel.send('Successfully connected!')
-                            self.allowed_channels.append(channel)
-                            break
+                        if c in channel.name: # check if whitelisted channel
+                            if channel.type.name == 'text' or channel.type.name == 'news':
+                                self.logger.info(f'Found channel for posting deals: {channel.name}')
+                                await channel.send('Successfully connected!')
+                                self.allowed_channels.append(channel)
+                                break
         await self.add_cog(DealsCog(self))
 
 def main ():

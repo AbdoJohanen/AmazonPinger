@@ -20,9 +20,12 @@ HEADERS = ({'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (K
 ({'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.47', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'}), 
 ({'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5', 'DNT': '1'})
 
+
 PROXIES = {
-    'http': f'socks5://{{PROXY_USERNAME}}:{{PROXY_PASSWORD}}@{{PROXY_HOST}}:1080'
+    'http': f'socks5://{{PROXY_USERNAME}}:{{PROXY_PASSWORD}}@{{PROXY_HOST}}:1080',
+    'https': f'socks5://{{PROXY_USERNAME}}:{{PROXY_PASSWORD}}@{{PROXY_HOST}}:1080'
 }
+
 
 class Scrapers():
 
@@ -80,8 +83,8 @@ class Scrapers():
         self.swedroid.clear()
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
         session = requests.Session()
-        session.get('https://swedroid.se/forum/login')
-        response = session.post(SWEDROID_LOGIN, proxies=proxies, timeout=5, headers=HEADERS, data=f'login={os.getenv(SWEDROID_USERNAME)}&register=0&password={os.getenv(SWEDROID_PASSWORD)}&remember=1&cookie_check=1&_xfToken=&redirect=https%3A%2F%2Fswedroid.se%2Fforum%2F')
+        session.get('https://swedroid.se/forum/login', proxies=proxies)
+        response = session.post(SWEDROID_LOGIN, proxies=proxies, timeout=5, headers=random.choice(HEADERS), data=f'login={os.getenv(SWEDROID_USERNAME)}&register=0&password={os.getenv(SWEDROID_PASSWORD)}&remember=1&cookie_check=1&_xfToken=&redirect=https%3A%2F%2Fswedroid.se%2Fforum%2F')
         response = session.get(SWEDROID, proxies=proxies, timeout=5)
         response_text = response.text
         last_pattern = r'data\-last\=\"(\d+)\"'
@@ -112,7 +115,7 @@ class Scrapers():
         self.logger.info('Scraping amazon')
         self.amazon.clear() 
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
-        response = requests.get(os.getenv(AMAZON_LINK), headers=random.choice(HEADERS), timeout=5)
+        response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=5)
         soup = BeautifulSoup(response.text, 'html.parser')
         data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
         asin_list = [x for x in data_asin_list if x]

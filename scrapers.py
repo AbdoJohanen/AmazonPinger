@@ -186,6 +186,3 @@ class Scrapers():
                     self.amazon_old.append(amaz)
         self.logger.info(f'Scraped amazon.se: {self.amazon}')
         return self.amazon
-    
-
-# detailBullets_feature_div ID for asin location

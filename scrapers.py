@@ -125,6 +125,8 @@ class Scrapers():
                 for i, u in enumerate(url_matches):
                     try:
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
+                        if '&nbsp;' in deal_price:
+                            deal_price = deal_price.replace('&nbsp;', ' ')
                     except:
                         deal_price = None
                     try:

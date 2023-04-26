@@ -126,7 +126,7 @@ class Scrapers():
                     try:
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
                         if '&nbsp;' in deal_price:
-                            deal_price = deal_price.replace('&nbsp;', ' ')
+                            deal_price = deal_price.replace('\xa0', ' ')
                     except:
                         deal_price = None
                     try:
@@ -136,20 +136,21 @@ class Scrapers():
                     amaz = Amazon(deal_title, deal_price, u, None)
                     if amaz.url not in [x.url for x in self.amazon_old]:
                         product_asin = amaz.url.split("/")[-1]
-
-                        response = requests.get(f'{HAGGLEZON}{product_asin}', headers=random.choice(HEADERS), timeout=5)
-                        soup = BeautifulSoup(response.text, 'html.parser')
                         try:
-                            list_prices = soup.find(attrs={"class":"search-results-container"}).find(attrs={"class":"list-prices"})
-                            country_list = [f.find('img')['alt'] for f in list_prices.findAll('figure', {'class': 'flag'})]
-                            price_list = [price.find('span', class_='price-value').text.replace('\xa0', ' ') for price in list_prices]
-                            combined_list = [f'amazon.{country} {price}' for country, price in zip(country_list, price_list)]
-                            hagglezon_result = '\n'.join(combined_list)
+                            response = requests.get(f'{HAGGLEZON}{product_asin}', headers=random.choice(HEADERS), timeout=5)
+                            soup = BeautifulSoup(response.text, 'html.parser')
+                            try:
+                                list_prices = soup.find(attrs={"class":"search-results-container"}).find(attrs={"class":"list-prices"})
+                                country_list = [f.find('img')['alt'] for f in list_prices.findAll('figure', {'class': 'flag'})]
+                                price_list = [price.find('span', class_='price-value').text.replace('\xa0', ' ') for price in list_prices]
+                                combined_list = [f'amazon.{country} {price}' for country, price in zip(country_list, price_list)]
+                                hagglezon_result = '\n'.join(combined_list)
+                            except:
+                                hagglezon_result = 'ASIN was not found on hagglezon'
                         except:
-                            hagglezon_result = 'ASIN was not found on hagglezon'
+                            hagglezon_result = 'Could not reach hagglezon'
+                        
                         new_amaz = Amazon(amaz.name, amaz.price, amaz.url, hagglezon_result)
-
-
                         new_urls.append(new_amaz)
                         self.amazon_old.append(new_amaz)
                 if len(new_urls) > 6:

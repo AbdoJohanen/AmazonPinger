@@ -125,7 +125,7 @@ class Scrapers():
                 for i, u in enumerate(url_matches):
                     try:
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
-                        if '&nbsp;' in deal_price:
+                        if '\xa0' in deal_price:
                             deal_price = deal_price.replace('\xa0', ' ')
                     except Exception as e:
                         deal_price = None
@@ -140,8 +140,8 @@ class Scrapers():
                         product_asin = amaz.url.split("/")[-1]
                         try:
                             response = requests.get(f'{HAGGLEZON}{product_asin}', headers=random.choice(HEADERS), timeout=10)
-                            soup = BeautifulSoup(response.text, 'html.parser')
                             try:
+                                soup = BeautifulSoup(response.text, 'html.parser')
                                 list_prices = soup.find(attrs={"class":"search-results-container"}).find(attrs={"class":"list-prices"})
                                 country_list = [f.find('img')['alt'] for f in list_prices.findAll('figure', {'class': 'flag'})]
                                 price_list = [price.find('span', class_='price-value').text.replace('\xa0', ' ') for price in list_prices]
@@ -154,9 +154,13 @@ class Scrapers():
                             hagglezon_result = 'Could not reach hagglezon'
                             self.logger.error(e)
                         
-                        new_amaz = Amazon(amaz.name, amaz.price, amaz.url, hagglezon_result)
-                        new_urls.append(new_amaz)
-                        self.amazon_old.append(new_amaz)
+                        if amaz.price == None or amaz.name == None:
+                            return
+                        else:
+                            new_amaz = Amazon(amaz.name, amaz.price, amaz.url, hagglezon_result)
+                            new_urls.append(new_amaz)
+                            self.amazon_old.append(new_amaz)
+                        
                 if len(new_urls) > 6:
                     self.logger.info("New products bug")
                     new_urls = []

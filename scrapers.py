@@ -127,14 +127,12 @@ class Scrapers():
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
                         if '\xa0' in deal_price:
                             deal_price = deal_price.replace('\xa0', ' ')
-                    except Exception as e:
+                    except:
                         deal_price = None
-                        self.logger.error(e)
                     try:
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
-                    except Exception as e:
+                    except:
                         deal_title = None
-                        self.logger.error(e)
                     amaz = Amazon(deal_title, deal_price, u, None)
                     if amaz.url not in [x.url for x in self.amazon_old]:
                         product_asin = amaz.url.split("/")[-1]
@@ -147,12 +145,10 @@ class Scrapers():
                                 price_list = [price.find('span', class_='price-value').text.replace('\xa0', ' ') for price in list_prices]
                                 combined_list = [f'amazon.{country} {price}' for country, price in zip(country_list, price_list)]
                                 hagglezon_result = '\n'.join(combined_list)
-                            except Exception as e:
+                            except:
                                 hagglezon_result = 'ASIN was not found on hagglezon'
-                                self.logger.error(e)
-                        except Exception as e:
+                        except:
                             hagglezon_result = 'Could not reach hagglezon'
-                            self.logger.error(e)
                         
                         if amaz.price == None or amaz.name == None:
                             return

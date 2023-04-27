@@ -127,17 +127,19 @@ class Scrapers():
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
                         if '&nbsp;' in deal_price:
                             deal_price = deal_price.replace('\xa0', ' ')
-                    except:
+                    except Exception as e:
                         deal_price = None
+                        self.logger.error(e)
                     try:
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
-                    except:
+                    except Exception as e:
                         deal_title = None
+                        self.logger.error(e)
                     amaz = Amazon(deal_title, deal_price, u, None)
                     if amaz.url not in [x.url for x in self.amazon_old]:
                         product_asin = amaz.url.split("/")[-1]
                         try:
-                            response = requests.get(f'{HAGGLEZON}{product_asin}', headers=random.choice(HEADERS), timeout=5)
+                            response = requests.get(f'{HAGGLEZON}{product_asin}', headers=random.choice(HEADERS), timeout=10)
                             soup = BeautifulSoup(response.text, 'html.parser')
                             try:
                                 list_prices = soup.find(attrs={"class":"search-results-container"}).find(attrs={"class":"list-prices"})
@@ -145,10 +147,12 @@ class Scrapers():
                                 price_list = [price.find('span', class_='price-value').text.replace('\xa0', ' ') for price in list_prices]
                                 combined_list = [f'amazon.{country} {price}' for country, price in zip(country_list, price_list)]
                                 hagglezon_result = '\n'.join(combined_list)
-                            except:
+                            except Exception as e:
                                 hagglezon_result = 'ASIN was not found on hagglezon'
-                        except:
+                                self.logger.error(e)
+                        except Exception as e:
                             hagglezon_result = 'Could not reach hagglezon'
+                            self.logger.error(e)
                         
                         new_amaz = Amazon(amaz.name, amaz.price, amaz.url, hagglezon_result)
                         new_urls.append(new_amaz)
@@ -168,23 +172,27 @@ class Scrapers():
                 for i, u in enumerate(page2_urls):
                     try:
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
-                    except:
+                    except Exception as e:
                         deal_price = None
+                        self.logger.error(e)
                     try:
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
-                    except:
+                    except Exception as e:
                         deal_title = None
+                        self.logger.error(e)
                     amaz = Amazon(deal_title, deal_price, u, None)
                     self.amazon_old.append(amaz)
                 for i, u in enumerate(url_matches):
                     try:
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
-                    except:
+                    except Exception as e:
                         deal_price = None
+                        self.logger.error(e)
                     try:
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
-                    except:
+                    except Exception as e:
                         deal_title = None
+                        self.logger.error(e)
                     amaz = Amazon(deal_title, deal_price, u, None)
                     self.amazon_old.append(amaz)
         self.logger.info(f'Scraped amazon.se: {self.amazon}')

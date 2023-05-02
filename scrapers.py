@@ -172,27 +172,23 @@ class Scrapers():
                 for i, u in enumerate(page2_urls):
                     try:
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
-                    except Exception as e:
+                    except:
                         deal_price = None
-                        self.logger.error(e)
                     try:
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
-                    except Exception as e:
+                    except:
                         deal_title = None
-                        self.logger.error(e)
                     amaz = Amazon(deal_title, deal_price, u, None)
                     self.amazon_old.append(amaz)
                 for i, u in enumerate(url_matches):
                     try:
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
-                    except Exception as e:
+                    except:
                         deal_price = None
-                        self.logger.error(e)
                     try:
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
-                    except Exception as e:
+                    except:
                         deal_title = None
-                        self.logger.error(e)
                     amaz = Amazon(deal_title, deal_price, u, None)
                     self.amazon_old.append(amaz)
         self.logger.info(f'Scraped amazon.se: {self.amazon}')

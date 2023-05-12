@@ -40,7 +40,7 @@ class Scrapers():
     def scrape_adealsweden(self):
         self.logger.info('Scraping adealsweden')
         self.adealsweden.clear()
-        response = requests.get(ADEALSWEDEN, headers=random.choice(HEADERS), timeout=5)
+        response = requests.get(ADEALSWEDEN, headers=random.choice(HEADERS), timeout=8)
         response_text = response.text
         name_pattern = r'<a\shref\=\"https\:\/\/www\.adealsweden\.com\/[\w\S]+\/\d+\/\"\starget.*>(.*)<'
         price_pattern = r'\<em\>(.*)\<\/em\>\<\/strong\>(.*)\<\/p\>'
@@ -52,18 +52,21 @@ class Scrapers():
             if self.adealsweden_old:
                 tmp = None
                 for i, n in enumerate(name_matches):
-                    real_url = requests.get(url_matches[i]).url.split('?')[0]
-                    if real_url == 'https://www.amazon.se/s':
-                        real_url = requests.get(url_matches[i]).url
-                    name_match = n
-                    if '&#8211;' in name_match:
-                        name_match = name_match.replace('&#8211;', '-')
-                    ad = Adealsweden(name_match, ''.join(prices_matches[i]).strip(), real_url)
-                    if i == 0:
-                        tmp = ad
-                    if self.adealsweden_old.name == name_match:
-                        break
-                    self.adealsweden.append(ad)
+                    try:
+                        real_url = requests.get(url_matches[i], timeout=8).url.split('?')[0]
+                        if real_url == 'https://www.amazon.se/s':
+                            real_url = requests.get(url_matches[i]).url
+                        name_match = n
+                        if '&#8211;' in name_match:
+                            name_match = name_match.replace('&#8211;', '-')
+                        ad = Adealsweden(name_match, ''.join(prices_matches[i]).strip(), real_url)
+                        if i == 0:
+                            tmp = ad
+                        if self.adealsweden_old.name == name_match:
+                            break
+                        self.adealsweden.append(ad)
+                    except:
+                        self.logger.info("Adealsweden url_matches timeout")
                 self.adealsweden_old = tmp
             else:
                 real_url = requests.get(url_matches[0]).url.split('?')[0]
@@ -84,15 +87,15 @@ class Scrapers():
         session = requests.Session()
         session.proxies = proxies
         session.headers = random.choice(HEADERS)
-        response = session.get(SWEDROID_LOGIN, timeout=7)
-        response = session.post(SWEDROID_LOGIN, timeout=7, data={
+        response = session.get(SWEDROID_LOGIN, timeout=8)
+        response = session.post(SWEDROID_LOGIN, timeout=8, data={
             'login': os.getenv(SWEDROID_USERNAME),
             'password': os.getenv(SWEDROID_PASSWORD),
             'remember': '1',
             'cookie_check': '1',
             'redirect': 'https://swedroid.se/forum/'
         })
-        response = session.get(SWEDROID, timeout=7)
+        response = session.get(SWEDROID, timeout=8)
         response_text = response.text
         last_pattern = r'data\-last\=\"(\d+)\"'
         last_matches = re.findall(last_pattern, response_text, re.MULTILINE)
@@ -122,7 +125,7 @@ class Scrapers():
         self.logger.info('Scraping amazon')
         self.amazon.clear() 
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
-        response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=5)
+        response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=8)
         soup = BeautifulSoup(response.text, 'html.parser')
         data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
         asin_list = [x for x in data_asin_list if x]
@@ -145,7 +148,7 @@ class Scrapers():
                     if amaz.url not in [x.url for x in self.amazon_old]:
                         product_asin = amaz.url.split("/")[-1]
                         try:
-                            response = requests.get(f'{HAGGLEZON}{product_asin}', headers=random.choice(HEADERS), timeout=10)
+                            response = requests.get(f'{HAGGLEZON}{product_asin}', headers=random.choice(HEADERS), timeout=8)
                             try:
                                 soup = BeautifulSoup(response.text, 'html.parser')
                                 list_prices = soup.find(attrs={"class":"search-results-container"}).find(attrs={"class":"list-prices"})
@@ -172,7 +175,7 @@ class Scrapers():
                     self.logger.info("Found new deals!")
                     self.amazon = new_urls
             else:
-                response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', headers=random.choice(HEADERS), timeout=5)
+                response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', headers=random.choice(HEADERS), timeout=8)
                 soup_page2 = BeautifulSoup(response_page2.text, 'html.parser')
                 data_asin_list = [div["data-asin"] for div in soup_page2.select('.s-result-item[data-asin]')]
                 asin_list = [x for x in data_asin_list if x]

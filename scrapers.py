@@ -148,7 +148,7 @@ class Scrapers():
                     if amaz.url not in [x.url for x in self.amazon_old]:
                         product_asin = amaz.url.split("/")[-1]
                         try:
-                            response = requests.get(f'{HAGGLEZON}{product_asin}', headers=random.choice(HEADERS), timeout=8)
+                            response = requests.get(f'{HAGGLEZON}{product_asin}', proxies=proxies, headers=random.choice(HEADERS), timeout=8)
                             try:
                                 soup = BeautifulSoup(response.text, 'html.parser')
                                 list_prices = soup.find(attrs={"class":"search-results-container"}).find(attrs={"class":"list-prices"})
@@ -175,7 +175,7 @@ class Scrapers():
                     self.logger.info("Found new deals!")
                     self.amazon = new_urls
             else:
-                response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', headers=random.choice(HEADERS), timeout=8)
+                response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', proxies=proxies, headers=random.choice(HEADERS), timeout=8)
                 soup_page2 = BeautifulSoup(response_page2.text, 'html.parser')
                 data_asin_list = [div["data-asin"] for div in soup_page2.select('.s-result-item[data-asin]')]
                 asin_list = [x for x in data_asin_list if x]

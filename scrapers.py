@@ -129,7 +129,13 @@ class Scrapers():
         soup = BeautifulSoup(response.text, 'html.parser')
         data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
         asin_list = [x for x in data_asin_list if x]
-        url_matches = [f'https://www.amazon.se/dp/{url}' for url in asin_list]
+        url_matches = []
+        for div in soup.select('.s-result-item[data-asin]'):
+            anchor_tag = div.find('a', class_='a-link-normal s-no-outline')
+            if anchor_tag:
+                href_link = anchor_tag.get('href')
+                clean_url = href_link.split('/ref=')[0]
+                url_matches.append(f'https://www.amazon.se{clean_url}')
         if url_matches:
             if self.amazon_old:
                 new_urls = []
@@ -179,7 +185,13 @@ class Scrapers():
                 soup_page2 = BeautifulSoup(response_page2.text, 'html.parser')
                 data_asin_list = [div["data-asin"] for div in soup_page2.select('.s-result-item[data-asin]')]
                 asin_list = [x for x in data_asin_list if x]
-                page2_urls = [f'https://www.amazon.se/dp/{url}' for url in asin_list]
+                page2_urls = []
+                for div in soup_page2.select('.s-result-item[data-asin]'):
+                    anchor_tag = div.find('a', class_='a-link-normal s-no-outline')
+                    if anchor_tag:
+                        href_link = anchor_tag.get('href')
+                        clean_url = href_link.split('/ref=')[0]
+                        page2_urls.append(f'https://www.amazon.se{clean_url}')
                 for i, u in enumerate(page2_urls):
                     try:
                         deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text

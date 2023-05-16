@@ -2,6 +2,9 @@ import requests, logging, re, os, random
 from models import Adealsweden, Swedroid, Amazon
 from bs4 import BeautifulSoup
 from collections import deque
+import undetected_chromedriver as uc
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 AMAZON_LINK = 'AMAZON_LINK'
@@ -40,8 +43,18 @@ class Scrapers():
     def scrape_adealsweden(self):
         self.logger.info('Scraping adealsweden')
         self.adealsweden.clear()
-        response = requests.get(ADEALSWEDEN, headers=random.choice(HEADERS), timeout=8)
-        response_text = response.text
+        options = uc.ChromeOptions()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        driver = uc.Chrome(options=options)
+        driver.get(ADEALSWEDEN)
+        WebDriverWait(driver, 10).until(EC.title_contains("Active Deals - Adealsweden"))
+        response = driver.page_source
+        driver.quit()
+        response_text = response
+        # response = requests.get(ADEALSWEDEN, headers=random.choice(HEADERS), timeout=8)
+        # response_text = response.text
         name_pattern = r'<a\shref\=\"https\:\/\/www\.adealsweden\.com\/[\w\S]+\/\d+\/\"\starget.*>(.*)<'
         price_pattern = r'\<em\>(.*)\<\/em\>\<\/strong\>(.*)\<\/p\>'
         url_pattern = r'(?<!>)https://amzn\.to/[^\s"]+'

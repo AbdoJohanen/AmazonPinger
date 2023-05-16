@@ -1,5 +1,8 @@
 FROM python:3.10-slim
-RUN apt update && apt install chromium -y
+RUN apt-get update && apt-get install -y chromium \
+&& \
+apt-get clean && \
+rm -rf /var/lib/apt/lists/*
 RUN mkdir /app
 ADD . /app 
 WORKDIR /app

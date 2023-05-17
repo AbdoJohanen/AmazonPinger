@@ -34,9 +34,22 @@ PROXIES = {
 }
 
 
-proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
-response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=8)
-soup = BeautifulSoup(response.text, 'html.parser')
+# proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
+# response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=8)
+# soup = BeautifulSoup(response.text, 'html.parser')
+
+options = uc.ChromeOptions()
+options.add_argument("--headless")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--disable-gpu")
+driver = uc.Chrome(options=options)
+driver.get(ADEALSWEDEN)
+WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
+soup = driver.page_source
+
+
+
 data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
 asin_list = [x for x in data_asin_list if x]
 url_matches = []

@@ -47,14 +47,13 @@ class Scrapers():
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
         driver = uc.Chrome(options=options)
         driver.get(ADEALSWEDEN)
         WebDriverWait(driver, 10).until(EC.title_contains("Active Deals - Adealsweden"))
         response = driver.page_source
         driver.quit()
         response_text = response
-        # response = requests.get(ADEALSWEDEN, headers=random.choice(HEADERS), timeout=8)
-        # response_text = response.text
         name_pattern = r'<a\shref\=\"https\:\/\/www\.adealsweden\.com\/[\w\S]+\/\d+\/\"\starget.*>(.*)<'
         price_pattern = r'\<em\>(.*)\<\/em\>\<\/strong\>(.*)\<\/p\>'
         url_pattern = r'(?<!>)https://amzn\.to/[^\s"]+'
@@ -97,6 +96,7 @@ class Scrapers():
         self.logger.info('Scraping swedroid')
         self.swedroid.clear()
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
+        
         session = requests.Session()
         session.proxies = proxies
         session.headers = random.choice(HEADERS)

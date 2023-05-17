@@ -1,7 +1,9 @@
 requests
+asyncio
 discord.py
 python-dotenv
 beautifulsoup4
 PySocks
 selenium
 undetected_chromedriver
+aiohttp

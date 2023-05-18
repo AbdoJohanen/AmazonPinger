@@ -110,7 +110,6 @@ class Scrapers():
         response = session.get(SWEDROID, timeout=8)
         response_text = response.text
         last_pattern = r'data\-last\=\"(\d+)\"'
-        self.logger.info(response_text)
         last_matches = re.findall(last_pattern, response_text, re.MULTILINE)
         if last_matches:
             response = session.get(SWEDROID + f'page-{last_matches[0]}')

@@ -44,22 +44,18 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 driver = uc.Chrome(options=options)
-
-
-
-driver.get(os.getenv(AMAZON_LINK))
-WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
+driver.get(ADEALSWEDEN)
+WebDriverWait(driver, 10).until(EC.title_contains("Active Deals - Adealsweden"))
 response = driver.page_source
-driver.quit
-soup = BeautifulSoup(response, 'html.parser')
-
-response = driver.page_source
-soup = BeautifulSoup(response, 'html.parser')
-data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
-asin_list = [x for x in data_asin_list if x]
-url_matches = []
-print(len(asin_list))
-
+driver.quit()
+soup = response
+name_pattern = r'<a\shref\=\"https\:\/\/www\.adealsweden\.com\/[\w\S]+\/\d+\/\"\starget.*>(.*)<'
+price_pattern = r'\<em\>(.*)\<\/em\>\<\/strong\>(.*)\<\/p\>'
+url_pattern = r'(?<!>)https://amzn\.to/[^\s"]+'
+name_matches = re.findall(name_pattern, soup, re.MULTILINE)
+prices_matches = re.findall(price_pattern, soup, re.MULTILINE)
+url_matches = re.findall(url_pattern, soup, re.MULTILINE)
+print(len(url_matches))
 
 
 

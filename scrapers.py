@@ -50,16 +50,16 @@ class Scrapers():
         options.add_argument("--disable-gpu")
         driver = uc.Chrome(options=options)
         driver.get(ADEALSWEDEN)
-        WebDriverWait(driver, 10).until(EC.title_contains("Adealsweden"))
+        WebDriverWait(driver, 10).until(EC.title_contains("Active Deals - Adealsweden"))
         response = driver.page_source
         driver.quit()
-        response_text = response
+        soup = response
         name_pattern = r'<a\shref\=\"https\:\/\/www\.adealsweden\.com\/[\w\S]+\/\d+\/\"\starget.*>(.*)<'
         price_pattern = r'\<em\>(.*)\<\/em\>\<\/strong\>(.*)\<\/p\>'
         url_pattern = r'(?<!>)https://amzn\.to/[^\s"]+'
-        name_matches = re.findall(name_pattern, response_text, re.MULTILINE)
-        prices_matches = re.findall(price_pattern, response_text, re.MULTILINE)
-        url_matches = re.findall(url_pattern, response_text, re.MULTILINE)
+        name_matches = re.findall(name_pattern, soup, re.MULTILINE)
+        prices_matches = re.findall(price_pattern, soup, re.MULTILINE)
+        url_matches = re.findall(url_pattern, soup, re.MULTILINE)
         if name_matches and prices_matches and url_matches:
             if self.adealsweden_old:
                 tmp = None
@@ -134,13 +134,13 @@ class Scrapers():
         return self.swedroid
 
     def scrape_amazon(self):
+        self.logger.info('Scraping amazon')
+        self.amazon.clear()
         options = uc.ChromeOptions()
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
-        self.logger.info('Scraping amazon')
-        self.amazon.clear()
         driver = uc.Chrome(options=options)
         driver.get(os.getenv(AMAZON_LINK))
         WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))

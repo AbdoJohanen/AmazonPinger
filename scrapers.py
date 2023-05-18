@@ -146,7 +146,7 @@ class Scrapers():
         driver.get(os.getenv(AMAZON_LINK))
         WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
         response = driver.page_source
-        driver.quit
+        driver.quit()
         soup = BeautifulSoup(response, 'html.parser')
 
 
@@ -210,7 +210,7 @@ class Scrapers():
                 driver.get(f'{os.getenv(AMAZON_LINK)}&page=2')
                 WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
                 response_page2 = driver.page_source
-                driver.quit
+                driver.quit()
                 soup_page2 = BeautifulSoup(response_page2, 'html.parser')
 
                 # response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', proxies=proxies, headers=random.choice(HEADERS), timeout=8)

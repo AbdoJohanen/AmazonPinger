@@ -44,21 +44,28 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 driver = uc.Chrome(options=options)
-driver.get(ADEALSWEDEN)
+driver.get(os.getenv(AMAZON_LINK))
 WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
-soup = driver.page_source
-
+response = driver.page_source
+soup = BeautifulSoup(response, 'html.parser')
 
 
 data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
 asin_list = [x for x in data_asin_list if x]
 url_matches = []
 print(len(asin_list))
-print("111")
-for asin in asin_list:
-    print("test")
-    anchor_tag = soup.select_one(f'a[data-asin="{asin}"]')
-    print(anchor_tag)
-    if anchor_tag:
-        href_link = anchor_tag.get('href')
-        url_matches.append(href_link)
+
+
+
+# data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
+# asin_list = [x for x in data_asin_list if x]
+# url_matches = []
+# print(len(asin_list))
+# print("111")
+# for asin in asin_list:
+#     print("test")
+#     anchor_tag = soup.select_one(f'a[data-asin="{asin}"]')
+#     print(anchor_tag)
+#     if anchor_tag:
+#         href_link = anchor_tag.get('href')
+#         url_matches.append(href_link)

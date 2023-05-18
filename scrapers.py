@@ -60,7 +60,6 @@ class Scrapers():
         name_matches = re.findall(name_pattern, response_text, re.MULTILINE)
         prices_matches = re.findall(price_pattern, response_text, re.MULTILINE)
         url_matches = re.findall(url_pattern, response_text, re.MULTILINE)
-        print(url_matches[0])
         if name_matches and prices_matches and url_matches:
             if self.adealsweden_old:
                 tmp = None
@@ -111,6 +110,7 @@ class Scrapers():
         response = session.get(SWEDROID, timeout=8)
         response_text = response.text
         last_pattern = r'data\-last\=\"(\d+)\"'
+        self.logger.info(response_text)
         last_matches = re.findall(last_pattern, response_text, re.MULTILINE)
         if last_matches:
             response = session.get(SWEDROID + f'page-{last_matches[0]}')

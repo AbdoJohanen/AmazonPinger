@@ -39,9 +39,13 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 driver = uc.Chrome(options=options)
+ip = requests.get('https://jsonip.com/')
+ip = ip.json()['ip']
+print(ip)
 driver.get(ADEALSWEDEN)
 WebDriverWait(driver, 10).until(EC.title_contains("Active Deals - Adealsweden"))
 response = driver.page_source
+
 driver.quit()
 soup = response
 name_pattern = r'<a\shref\=\"https\:\/\/www\.adealsweden\.com\/[\w\S]+\/\d+\/\"\starget.*>(.*)<'

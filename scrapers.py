@@ -153,7 +153,6 @@ class Scrapers():
         # soup = BeautifulSoup(response.text, 'html.parser')
         data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
         asin_list = [x for x in data_asin_list if x]
-        self.logger.info(f'Page 1 total asins: {len(asin_list)}')
         url_matches = []
         for div in soup.select('.s-result-item[data-asin]'):
             anchor_tag = div.find('a', class_='a-link-normal s-no-outline')
@@ -216,7 +215,6 @@ class Scrapers():
                 # soup_page2 = BeautifulSoup(response_page2.text, 'html.parser')
                 data_asin_list = [div["data-asin"] for div in soup_page2.select('.s-result-item[data-asin]')]
                 asin_list = [x for x in data_asin_list if x]
-                self.logger.info(f'Page 2 total asins: {len(asin_list)}')
                 page2_urls = []
                 for div in soup_page2.select('.s-result-item[data-asin]'):
                     anchor_tag = div.find('a', class_='a-link-normal s-no-outline')

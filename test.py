@@ -44,16 +44,22 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 driver = uc.Chrome(options=options)
-driver.get(os.getenv(AMAZON_LINK))
-WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
-response = driver.page_source
-soup = BeautifulSoup(response, 'html.parser')
 
 
-data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
-asin_list = [x for x in data_asin_list if x]
-url_matches = []
-print(len(asin_list))
+
+
+driver.get(f'{HAGGLEZON}B0888PHY5R')
+if WebDriverWait(driver, 10).until(EC.title_contains("Compare prices for across all Amazon European stores")):
+    print("Yes")
+
+
+
+# response = driver.page_source
+# soup = BeautifulSoup(response, 'html.parser')
+# data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
+# asin_list = [x for x in data_asin_list if x]
+# url_matches = []
+# print(len(asin_list))
 
 
 

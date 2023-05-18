@@ -135,15 +135,26 @@ class Scrapers():
     #     return self.swedroid
 
     def scrape_amazon(self):
+        options = uc.ChromeOptions()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        driver = uc.Chrome(options=options)
         self.logger.info('Scraping amazon')
-        self.amazon.clear() 
+        self.amazon.clear()
+        driver.get(os.getenv(AMAZON_LINK))
+        WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
+        response = driver.page_source
+        soup = BeautifulSoup(response, 'html.parser')
+
+
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
-        response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=8)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        # response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=8)
+        # soup = BeautifulSoup(response.text, 'html.parser')
         data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
         asin_list = [x for x in data_asin_list if x]
         url_matches = []
-        self.logger.info(soup)
         for div in soup.select('.s-result-item[data-asin]'):
             anchor_tag = div.find('a', class_='a-link-normal s-no-outline')
             if anchor_tag:
@@ -195,8 +206,13 @@ class Scrapers():
                     self.logger.info("Found new deals!")
                     self.amazon = new_urls
             else:
-                response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', proxies=proxies, headers=random.choice(HEADERS), timeout=8)
-                soup_page2 = BeautifulSoup(response_page2.text, 'html.parser')
+                driver.get(f'{os.getenv(AMAZON_LINK)}&page=2')
+                WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
+                response_page2 = driver.page_source
+                soup_page2 = BeautifulSoup(response_page2, 'html.parser')
+
+                # response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', proxies=proxies, headers=random.choice(HEADERS), timeout=8)
+                # soup_page2 = BeautifulSoup(response_page2.text, 'html.parser')
                 data_asin_list = [div["data-asin"] for div in soup_page2.select('.s-result-item[data-asin]')]
                 asin_list = [x for x in data_asin_list if x]
                 page2_urls = []

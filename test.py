@@ -43,18 +43,19 @@ ip = requests.get('https://jsonip.com/')
 ip = ip.json()['ip']
 print(ip)
 driver.get(ADEALSWEDEN)
-WebDriverWait(driver, 10).until(EC.title_contains("Active Deals - Adealsweden"))
+# WebDriverWait(driver, 10).until(EC.title_contains("Active Deals - Adealsweden"))
 response = driver.page_source
+print(response)
 
 driver.quit()
-soup = response
-name_pattern = r'<a\shref\=\"https\:\/\/www\.adealsweden\.com\/[\w\S]+\/\d+\/\"\starget.*>(.*)<'
-price_pattern = r'\<em\>(.*)\<\/em\>\<\/strong\>(.*)\<\/p\>'
-url_pattern = r'(?<!>)https://amzn\.to/[^\s"]+'
-name_matches = re.findall(name_pattern, soup, re.MULTILINE)
-prices_matches = re.findall(price_pattern, soup, re.MULTILINE)
-url_matches = re.findall(url_pattern, soup, re.MULTILINE)
-print(len(url_matches))
+# soup = response
+# name_pattern = r'<a\shref\=\"https\:\/\/www\.adealsweden\.com\/[\w\S]+\/\d+\/\"\starget.*>(.*)<'
+# price_pattern = r'\<em\>(.*)\<\/em\>\<\/strong\>(.*)\<\/p\>'
+# url_pattern = r'(?<!>)https://amzn\.to/[^\s"]+'
+# name_matches = re.findall(name_pattern, soup, re.MULTILINE)
+# prices_matches = re.findall(price_pattern, soup, re.MULTILINE)
+# url_matches = re.findall(url_pattern, soup, re.MULTILINE)
+# print(len(url_matches))
 
 
 

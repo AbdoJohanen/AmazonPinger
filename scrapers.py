@@ -1,4 +1,4 @@
-import requests, logging, re, os, random
+import requests, logging, re, os, random, time
 from models import Amazon #, Adealsweden, Swedroid
 from bs4 import BeautifulSoup
 from collections import deque
@@ -140,21 +140,20 @@ class Scrapers():
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
-        driver = uc.Chrome(options=options)
         self.logger.info('Scraping amazon')
         self.amazon.clear()
+        driver = uc.Chrome(options=options)
         driver.get(os.getenv(AMAZON_LINK))
         WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
         response = driver.page_source
-        driver.quit()
         soup = BeautifulSoup(response, 'html.parser')
-
 
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
         # response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=8)
         # soup = BeautifulSoup(response.text, 'html.parser')
         data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
         asin_list = [x for x in data_asin_list if x]
+        self.logger.info(f'Page 1 total asins: {len(asin_list)}')
         url_matches = []
         for div in soup.select('.s-result-item[data-asin]'):
             anchor_tag = div.find('a', class_='a-link-normal s-no-outline')
@@ -164,6 +163,7 @@ class Scrapers():
                 url_matches.append(f'https://www.amazon.se{clean_url}')
         if url_matches:
             if self.amazon_old:
+                driver.quit()
                 new_urls = []
                 for i, u in enumerate(url_matches):
                     try:
@@ -212,11 +212,11 @@ class Scrapers():
                 response_page2 = driver.page_source
                 driver.quit()
                 soup_page2 = BeautifulSoup(response_page2, 'html.parser')
-
                 # response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', proxies=proxies, headers=random.choice(HEADERS), timeout=8)
                 # soup_page2 = BeautifulSoup(response_page2.text, 'html.parser')
                 data_asin_list = [div["data-asin"] for div in soup_page2.select('.s-result-item[data-asin]')]
                 asin_list = [x for x in data_asin_list if x]
+                self.logger.info(f'Page 2 total asins: {len(asin_list)}')
                 page2_urls = []
                 for div in soup_page2.select('.s-result-item[data-asin]'):
                     anchor_tag = div.find('a', class_='a-link-normal s-no-outline')

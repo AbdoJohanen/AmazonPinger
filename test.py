@@ -1,5 +1,4 @@
 import requests, logging, re, os, random
-from models import Amazon #, Adealsweden, Swedroid
 from bs4 import BeautifulSoup
 from collections import deque
 import undetected_chromedriver as uc
@@ -33,10 +32,6 @@ PROXIES = {
     'https': f'socks5://{{PROXY_USERNAME}}:{{PROXY_PASSWORD}}@{{PROXY_HOST}}:1080'
 }
 
-
-# proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
-# response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=8)
-# soup = BeautifulSoup(response.text, 'html.parser')
 
 options = uc.ChromeOptions()
 options.add_argument("--headless")

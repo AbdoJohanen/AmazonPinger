@@ -16,27 +16,27 @@ class DealsCog(commands.Cog):
     @tasks.loop(seconds=30)
     async def scrape(self):
         self.logger.info('DealsCog started')
-        # try:
-        #     adealsweden = self.scrapers.scrape_adealsweden()
-        #     if self.scrapers.adealsweden_old:
-        #         for channel in self.bot.allowed_channels:
-        #             for adeal in adealsweden:
-        #                 await channel.send(f'@everyone new deal from adealsweden.com\n{adeal.name}\n{adeal.price}\n{adeal.url}')
-        #                 await asyncio.sleep(2)
-        # except Exception as e:
-        #     self.logger.error(f'Failed to scrape: adealsweden.com')
-        #     self.logger.error(e)
-        # try:
-        #     swedroid = self.scrapers.scrape_swedroid()
-        #     if self.scrapers.swedroid_old:
-        #         for channel in self.bot.allowed_channels:
-        #             for droid in swedroid:
-        #                 url = droid.url.split('?')[0]
-        #                 await channel.send(f'@everyone new deal from swedroid.se\n{url}')
-        #                 await asyncio.sleep(2)
-        # except Exception as e:
-        #     self.logger.error(f'Failed to scrape: swedroid.se')
-        #     self.logger.error(e)
+        try:
+            adealsweden = self.scrapers.scrape_adealsweden()
+            if self.scrapers.adealsweden_old:
+                for channel in self.bot.allowed_channels:
+                    for adeal in adealsweden:
+                        await channel.send(f'@everyone new deal from adealsweden.com\n{adeal.name}\n{adeal.price}\n{adeal.url}')
+                        await asyncio.sleep(2)
+        except Exception as e:
+            self.logger.error(f'Failed to scrape: adealsweden.com')
+            self.logger.error(e)
+        try:
+            swedroid = self.scrapers.scrape_swedroid()
+            if self.scrapers.swedroid_old:
+                for channel in self.bot.allowed_channels:
+                    for droid in swedroid:
+                        url = droid.url.split('?')[0]
+                        await channel.send(f'@everyone new deal from swedroid.se\n{url}')
+                        await asyncio.sleep(2)
+        except Exception as e:
+            self.logger.error(f'Failed to scrape: swedroid.se')
+            self.logger.error(e)
         try:
             amazon = self.scrapers.scrape_amazon()
             if self.scrapers.amazon_old:

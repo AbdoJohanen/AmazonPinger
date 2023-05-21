@@ -5,6 +5,7 @@ from collections import deque
 import undetected_chromedriver as uc
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 
 AMAZON_LINK = 'AMAZON_LINK'
@@ -140,10 +141,14 @@ class Scrapers():
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu")
         driver = uc.Chrome(options=options)
         driver.get(os.getenv(AMAZON_LINK))
-        WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
+        try:
+            WebDriverWait(driver, 20).until(EC.title_contains("Amazon.se : *"))
+        except TimeoutException as e:
+            self.logger.info(e)
+            driver.quit()
+            return
         response = driver.page_source
         soup = BeautifulSoup(response, 'html.parser')
 
@@ -206,7 +211,12 @@ class Scrapers():
                     self.amazon = new_urls
             else:
                 driver.get(f'{os.getenv(AMAZON_LINK)}&page=2')
-                WebDriverWait(driver, 10).until(EC.title_contains("Amazon.se : *"))
+                try:
+                    WebDriverWait(driver, 20).until(EC.title_contains("Amazon.se : *"))
+                except TimeoutException as e:
+                    self.logger.info(e)
+                    driver.quit()
+                    return
                 response_page2 = driver.page_source
                 driver.quit()
                 soup_page2 = BeautifulSoup(response_page2, 'html.parser')

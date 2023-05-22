@@ -51,16 +51,20 @@ class Scrapers():
     #     options.add_argument("--disable-gpu")
     #     driver = uc.Chrome(options=options)
     #     driver.get(ADEALSWEDEN)
-    #     WebDriverWait(driver, 10).until(EC.title_contains("Adealsweden"))
+    #     try:
+    #         WebDriverWait(driver, 20).until(EC.title_contains("Adealsweden"))
+    #     except TimeoutException as e:
+    #         self.logger.info(e)
+    #         driver.quit()
+    #         return
     #     response = driver.page_source
     #     driver.quit()
-    #     soup = response
     #     name_pattern = r'<a\shref\=\"https\:\/\/www\.adealsweden\.com\/[\w\S]+\/\d+\/\"\starget.*>(.*)<'
     #     price_pattern = r'\<em\>(.*)\<\/em\>\<\/strong\>(.*)\<\/p\>'
     #     url_pattern = r'(?<!>)https://amzn\.to/[^\s"]+'
-    #     name_matches = re.findall(name_pattern, soup, re.MULTILINE)
-    #     prices_matches = re.findall(price_pattern, soup, re.MULTILINE)
-    #     url_matches = re.findall(url_pattern, soup, re.MULTILINE)
+    #     name_matches = re.findall(name_pattern, response, re.MULTILINE)
+    #     prices_matches = re.findall(price_pattern, response, re.MULTILINE)
+    #     url_matches = re.findall(url_pattern, response, re.MULTILINE)
     #     if name_matches and prices_matches and url_matches:
     #         if self.adealsweden_old:
     #             tmp = None
@@ -148,7 +152,7 @@ class Scrapers():
         except TimeoutException as e:
             self.logger.info(e)
             driver.quit()
-            return
+            return self.amazon
         response = driver.page_source
         soup = BeautifulSoup(response, 'html.parser')
 

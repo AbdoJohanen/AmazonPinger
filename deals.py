@@ -13,7 +13,7 @@ class DealsCog(commands.Cog):
         self.logger.info('DealsCog unloading')
         self.scrape.cancel()
 
-    @tasks.loop(seconds=20)
+    @tasks.loop(seconds=30)
     async def scrape(self):
         self.logger.info('DealsCog started')
         # try:

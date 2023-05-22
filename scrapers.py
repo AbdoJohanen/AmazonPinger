@@ -146,9 +146,9 @@ class Scrapers():
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         driver = uc.Chrome(options=options)
-        driver.get(os.getenv(AMAZON_LINK))
         try:
-            WebDriverWait(driver, 20).until(EC.title_contains("Amazon.se : *"))
+            driver.get(os.getenv(AMAZON_LINK))
+            WebDriverWait(driver, 8).until(EC.title_contains("Amazon.se : *"))
         except TimeoutException as e:
             self.logger.info(e)
             driver.quit()
@@ -214,9 +214,9 @@ class Scrapers():
                     self.logger.info("Found new deals!")
                     self.amazon = new_urls
             else:
-                driver.get(f'{os.getenv(AMAZON_LINK)}&page=2')
                 try:
-                    WebDriverWait(driver, 20).until(EC.title_contains("Amazon.se : *"))
+                    driver.get(f'{os.getenv(AMAZON_LINK)}&page=2')
+                    WebDriverWait(driver, 8).until(EC.title_contains("Amazon.se : *"))
                 except TimeoutException as e:
                     self.logger.info(e)
                     driver.quit()

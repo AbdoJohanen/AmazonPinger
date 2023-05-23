@@ -56,7 +56,7 @@ def main ():
         exit(1)
     handler = logging.FileHandler(filename=LOG_FILE, encoding='utf-8', mode='a')
     allowed_mentions = discord.AllowedMentions(everyone=True)
-    client = DealsBot(servers, channels, logger, intents=None, allowed_mentions=allowed_mentions)    
+    client = DealsBot(servers, channels, logger, intents=None, command_prefix='!', allowed_mentions=allowed_mentions)    
     client.run(os.getenv(TOKEN), log_handler=handler, log_level=logging.INFO)
 
 if __name__ == "__main__":

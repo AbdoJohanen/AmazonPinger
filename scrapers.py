@@ -39,7 +39,7 @@ class Scrapers():
         self.swedroid = []
         self.swedroid_old = None
         self.amazon = []
-        self.amazon_old = deque(maxlen=300)
+        self.amazon_old = deque(maxlen=200)
 
     # def scrape_adealsweden(self):
     #     self.logger.info('Scraping adealsweden')
@@ -149,10 +149,12 @@ class Scrapers():
         try:
             driver.get(os.getenv(AMAZON_LINK))
             WebDriverWait(driver, 8).until(EC.title_contains("Amazon.se : *"))
-        except TimeoutException as e:
+        except Exception as e:
             self.logger.info(e)
             driver.quit()
             return self.amazon
+        finally:
+            driver.quit()
         response = driver.page_source
         soup = BeautifulSoup(response, 'html.parser')
 
@@ -217,10 +219,12 @@ class Scrapers():
                 try:
                     driver.get(f'{os.getenv(AMAZON_LINK)}&page=2')
                     WebDriverWait(driver, 8).until(EC.title_contains("Amazon.se : *"))
-                except TimeoutException as e:
+                except Exception as e:
                     self.logger.info(e)
                     driver.quit()
-                    return
+                    return self.amazon
+                finally:
+                    driver.quit()
                 response_page2 = driver.page_source
                 driver.quit()
                 soup_page2 = BeautifulSoup(response_page2, 'html.parser')

@@ -43,7 +43,7 @@ class DealsCog(commands.Cog):
                 for channel in self.bot.allowed_channels:
                     for amaz in amazon:
                         await channel.send(f'@everyone product on amazon.se\n{amaz.name}\n{amaz.price}\n{amaz.url}\n{amaz.hagglezon}')
-                        await asyncio.sleep(2)
+                        await asyncio.sleep(3)
         except Exception as e:
             self.logger.error(f'Failed to scrape: amazon.se')
             self.logger.error(e)

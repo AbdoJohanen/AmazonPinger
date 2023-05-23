@@ -152,8 +152,10 @@ class Scrapers():
             response = driver.page_source
         except Exception as e:
             self.logger.info(e)
-            driver.quit()
+            # driver.quit()
             return self.amazon
+        finally:
+            driver.close()
         soup = BeautifulSoup(response, 'html.parser')
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
         # response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=8)
@@ -169,7 +171,7 @@ class Scrapers():
                 url_matches.append(f'https://www.amazon.se{clean_url}')
         if url_matches:
             if self.amazon_old:
-                driver.quit()
+                # driver.quit()
                 new_urls = []
                 for i, u in enumerate(url_matches):
                     try:
@@ -219,11 +221,10 @@ class Scrapers():
                     response_page2 = driver.page_source
                 except Exception as e:
                     self.logger.info(e)
-                    driver.quit()
+                    # driver.quit()
                     return self.amazon
                 finally:
-                    driver.quit()
-                driver.quit()
+                    driver.close()
                 soup_page2 = BeautifulSoup(response_page2, 'html.parser')
                 # response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', proxies=proxies, headers=random.choice(HEADERS), timeout=8)
                 # soup_page2 = BeautifulSoup(response_page2.text, 'html.parser')

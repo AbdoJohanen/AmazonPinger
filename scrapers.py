@@ -142,22 +142,19 @@ class Scrapers():
         self.logger.info('Scraping amazon')
         self.amazon.clear()
         options = uc.ChromeOptions()
-        options.add_argument("--headless")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
+        # options.add_argument("--headless")
+        # options.add_argument("--no-sandbox")
+        # options.add_argument("--disable-dev-shm-usage")
         driver = uc.Chrome(options=options)
         try:
             driver.get(os.getenv(AMAZON_LINK))
             WebDriverWait(driver, 8).until(EC.title_contains("Amazon.se : *"))
+            response = driver.page_source
         except Exception as e:
             self.logger.info(e)
             driver.quit()
             return self.amazon
-        finally:
-            driver.quit()
-        response = driver.page_source
         soup = BeautifulSoup(response, 'html.parser')
-
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
         # response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=8)
         # soup = BeautifulSoup(response.text, 'html.parser')
@@ -219,13 +216,13 @@ class Scrapers():
                 try:
                     driver.get(f'{os.getenv(AMAZON_LINK)}&page=2')
                     WebDriverWait(driver, 8).until(EC.title_contains("Amazon.se : *"))
+                    response_page2 = driver.page_source
                 except Exception as e:
                     self.logger.info(e)
                     driver.quit()
                     return self.amazon
                 finally:
                     driver.quit()
-                response_page2 = driver.page_source
                 driver.quit()
                 soup_page2 = BeautifulSoup(response_page2, 'html.parser')
                 # response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', proxies=proxies, headers=random.choice(HEADERS), timeout=8)

@@ -5,3 +5,4 @@ beautifulsoup4
 PySocks
 selenium
 undetected_chromedriver
+psutil

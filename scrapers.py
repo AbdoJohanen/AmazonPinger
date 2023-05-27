@@ -138,6 +138,7 @@ class Scrapers():
     #     self.logger.info(f'Scraped swedroid.se: {self.swedroid}')
     #     return self.swedroid
 
+
     def scrape_amazon(self):
         self.logger.info('Scraping amazon')
         self.amazon.clear()
@@ -152,14 +153,9 @@ class Scrapers():
             response = driver.page_source
         except Exception as e:
             self.logger.info(e)
-            # driver.quit()
             return self.amazon
-        finally:
-            driver.close()
         soup = BeautifulSoup(response, 'html.parser')
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
-        # response = requests.get(os.getenv(AMAZON_LINK), proxies=proxies, headers=random.choice(HEADERS), timeout=8)
-        # soup = BeautifulSoup(response.text, 'html.parser')
         data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
         asin_list = [x for x in data_asin_list if x]
         url_matches = []
@@ -171,7 +167,7 @@ class Scrapers():
                 url_matches.append(f'https://www.amazon.se{clean_url}')
         if url_matches:
             if self.amazon_old:
-                # driver.quit()
+                driver.quit()
                 new_urls = []
                 for i, u in enumerate(url_matches):
                     try:
@@ -221,13 +217,10 @@ class Scrapers():
                     response_page2 = driver.page_source
                 except Exception as e:
                     self.logger.info(e)
-                    # driver.quit()
                     return self.amazon
                 finally:
-                    driver.close()
+                    driver.quit()
                 soup_page2 = BeautifulSoup(response_page2, 'html.parser')
-                # response_page2 = requests.get(f'{os.getenv(AMAZON_LINK)}&page=2', proxies=proxies, headers=random.choice(HEADERS), timeout=8)
-                # soup_page2 = BeautifulSoup(response_page2.text, 'html.parser')
                 data_asin_list = [div["data-asin"] for div in soup_page2.select('.s-result-item[data-asin]')]
                 asin_list = [x for x in data_asin_list if x]
                 page2_urls = []

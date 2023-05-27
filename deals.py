@@ -1,5 +1,5 @@
 from discord.ext import tasks, commands
-import asyncio, logging
+import asyncio, logging, psutil
 from scrapers import Scrapers
 
 class DealsCog(commands.Cog):
@@ -16,6 +16,13 @@ class DealsCog(commands.Cog):
     @tasks.loop(seconds=30)
     async def scrape(self):
         self.logger.info('DealsCog started')
+        PROCNAME = "chromium"
+        self.logger.info(f"Checking proc")
+        for proc in psutil.process_iter():
+            # check whether the process name matches
+            if proc.name() == PROCNAME:
+                self.logger.info(PROCNAME)
+        
         # try:
         #     adealsweden = self.scrapers.scrape_adealsweden()
         #     if self.scrapers.adealsweden_old:
@@ -37,6 +44,9 @@ class DealsCog(commands.Cog):
         # except Exception as e:
         #     self.logger.error(f'Failed to scrape: swedroid.se')
         #     self.logger.error(e)
+        
+        
+        
         try:
             amazon = self.scrapers.scrape_amazon()
             if self.scrapers.amazon_old:

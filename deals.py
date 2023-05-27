@@ -1,6 +1,11 @@
 from discord.ext import tasks, commands
-import asyncio, logging, psutil
+import asyncio, logging, subprocess
 from scrapers import Scrapers
+
+
+def drop_caches():
+    subprocess.run(['sudo', 'sh', '-c', 'echo 3 > /proc/sys/vm/drop_caches'])
+
 
 class DealsCog(commands.Cog):
     def __init__(self, bot):
@@ -13,27 +18,13 @@ class DealsCog(commands.Cog):
         self.logger.info('DealsCog unloading')
         self.scrape.cancel()
 
+
     @tasks.loop(seconds=30)
     async def scrape(self):
         self.logger.info('DealsCog started')
-        PROCNAME = "chromium"
 
-        # self.logger.info(f"Checking proc")
-        # for proc in psutil.process_iter():
-        #     # check whether the process name matches
-        #     if proc.name() == PROCNAME:
-        #         self.logger.info(PROCNAME)
-        #         proc.kill()
+        drop_caches()
 
-        for proc in psutil.process_iter(['pid', 'name', 'children']):
-            # Check whether the process name matches
-            if proc.info['name'] == PROCNAME:
-                self.logger.info(f"Terminating process: {proc.info['name']} (PID: {proc.info['pid']})")
-                # Terminate the child processes
-                for child_proc in proc.children(recursive=True):
-                    child_proc.terminate()
-                # Terminate the parent process
-                proc.terminate()
         
         # try:
         #     adealsweden = self.scrapers.scrape_adealsweden()

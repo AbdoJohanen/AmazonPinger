@@ -22,6 +22,7 @@ class DealsCog(commands.Cog):
             # check whether the process name matches
             if proc.name() == PROCNAME:
                 self.logger.info(PROCNAME)
+                proc.kill()
         
         # try:
         #     adealsweden = self.scrapers.scrape_adealsweden()

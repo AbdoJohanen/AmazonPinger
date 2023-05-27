@@ -23,8 +23,6 @@ class DealsCog(commands.Cog):
     async def scrape(self):
         self.logger.info('DealsCog started')
 
-        drop_caches()
-
         
         # try:
         #     adealsweden = self.scrapers.scrape_adealsweden()
@@ -60,6 +58,8 @@ class DealsCog(commands.Cog):
         except Exception as e:
             self.logger.error(f'Failed to scrape: amazon.se')
             self.logger.error(e)
+            
+        drop_caches()
 
     @scrape.before_loop
     async def before_printer(self):

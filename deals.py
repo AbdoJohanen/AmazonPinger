@@ -25,11 +25,14 @@ class DealsCog(commands.Cog):
         #         self.logger.info(PROCNAME)
         #         proc.kill()
 
-        self.logger.info(f"Checking proc")
-        for proc in psutil.process_iter():
+        for proc in psutil.process_iter(['pid', 'name', 'children']):
             # Check whether the process name matches
-            if proc.name() == PROCNAME:
-                self.logger.info(f"Terminating process: {proc.name()} (PID: {proc.pid})")
+            if proc.info['name'] == PROCNAME:
+                self.logger.info(f"Terminating process: {proc.info['name']} (PID: {proc.info['pid']})")
+                # Terminate the child processes
+                for child_proc in proc.children(recursive=True):
+                    child_proc.terminate()
+                # Terminate the parent process
                 proc.terminate()
         
         # try:

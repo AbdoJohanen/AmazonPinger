@@ -18,12 +18,12 @@ class DealsCog(commands.Cog):
         self.logger.info('DealsCog started')
         PROCNAME = "chromium"
 
-        self.logger.info(f"Checking proc")
-        for proc in psutil.process_iter():
-            # check whether the process name matches
-            if proc.name() == PROCNAME:
-                self.logger.info(PROCNAME)
-                proc.kill()
+        # self.logger.info(f"Checking proc")
+        # for proc in psutil.process_iter():
+        #     # check whether the process name matches
+        #     if proc.name() == PROCNAME:
+        #         self.logger.info(PROCNAME)
+        #         proc.kill()
 
         self.logger.info(f"Checking proc")
         for proc in psutil.process_iter():

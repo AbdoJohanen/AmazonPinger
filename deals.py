@@ -17,12 +17,19 @@ class DealsCog(commands.Cog):
     async def scrape(self):
         self.logger.info('DealsCog started')
         PROCNAME = "chromium"
+        # self.logger.info(f"Checking proc")
+        # for proc in psutil.process_iter():
+        #     # check whether the process name matches
+        #     if proc.name() == PROCNAME:
+        #         self.logger.info(PROCNAME)
+        #         proc.kill()
+
         self.logger.info(f"Checking proc")
         for proc in psutil.process_iter():
-            # check whether the process name matches
+            # Check whether the process name matches
             if proc.name() == PROCNAME:
-                self.logger.info(PROCNAME)
-                proc.kill()
+                print(f"Terminating process: {proc.name()} (PID: {proc.pid})")
+                proc.terminate()
         
         # try:
         #     adealsweden = self.scrapers.scrape_adealsweden()

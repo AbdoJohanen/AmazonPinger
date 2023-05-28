@@ -39,7 +39,7 @@ class Scrapers():
         self.swedroid = []
         self.swedroid_old = None
         self.amazon = []
-        self.amazon_old = deque(maxlen=200)
+        self.amazon_old = deque(maxlen=100)
 
     # def scrape_adealsweden(self):
     #     self.logger.info('Scraping adealsweden')

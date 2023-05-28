@@ -158,7 +158,7 @@ class Scrapers():
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
         data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
         asin_list = [x for x in data_asin_list if x]
-        price_pattern = r'<span class="a-price-whole">(\d+)<span class="a-price-decimal">([,.])</span></span>'
+        price_pattern = r'<span\sclass="a-price-(?:whole|fraction)">([^<]+)'
         url_matches = []
         for div in soup.select('.s-result-item[data-asin]'):
             anchor_tag = div.find('a', class_='a-link-normal s-no-outline')
@@ -172,24 +172,14 @@ class Scrapers():
                 new_urls = []
                 for i, u in enumerate(url_matches):
                     try:
-                        deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
+                        whole_price, fraction_price = re.findall(price_pattern, str(soup.find('div', {'data-asin': asin_list[i]})))
+                        deal_price = f"{whole_price},{fraction_price} kr"
                     except:
                         deal_price = None
                     try:
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
                     except:
                         deal_title = None
-                    # try:
-                    #     deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price-whole"}).findAll('span').text
-                    #     if '\xa0' in deal_price:
-                    #         deal_price = deal_price.replace('\xa0', ' ')
-                    #     self.logger.info(deal_price)
-                    # except:
-                    #     deal_price = None
-                    # try:
-                    #     deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
-                    # except:
-                    #     deal_title = None
                     amaz = Amazon(deal_title, deal_price, u, None, asin_list[i])
                     if amaz.asin not in [x.asin for x in self.amazon_old]:
                         product_asin = amaz.url.split("/")[-1]
@@ -244,7 +234,8 @@ class Scrapers():
                         url_matches2.append(f'https://www.amazon.se{clean_url}')
                 for i, u in enumerate(url_matches2):
                     try:
-                        deal_price = soup_page2.find('div', {'data-asin': asin_list2[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
+                        whole_price, fraction_price = re.findall(price_pattern, str(soup_page2.find('div', {'data-asin': asin_list2[i]})))
+                        deal_price = f"{whole_price},{fraction_price} kr"
                     except:
                         deal_price = None
                     try:
@@ -255,11 +246,8 @@ class Scrapers():
                     self.amazon_old.append(amaz)
                 for i, u in enumerate(url_matches):
                     try:
-                        # deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
-                        div_element = soup.find('div', {'data-asin': asin_list[i]})
-                        match = re.search(price_pattern, div_element)
-                        self.logger.info(f"Price match {match}")
-                        
+                        whole_price, fraction_price = re.findall(price_pattern, str(soup.find('div', {'data-asin': asin_list[i]})))
+                        deal_price = f"{whole_price},{fraction_price} kr"
                     except:
                         deal_price = None
                     try:

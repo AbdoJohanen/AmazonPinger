@@ -152,12 +152,13 @@ class Scrapers():
             WebDriverWait(driver, 8).until(EC.title_contains("Amazon.se : *"))
             response = driver.page_source
         except Exception as e:
-            self.logger.info(e)
-            return self.amazon
+            self.logger.error(e)
+            return
         soup = BeautifulSoup(response, 'html.parser')
         proxies = {k: v.format(PROXY_USERNAME=os.getenv(PROXY_USERNAME), PROXY_PASSWORD=os.getenv(PROXY_PASSWORD), PROXY_HOST=random.choice(PROXY_HOSTS)) for k, v in PROXIES.items()}
         data_asin_list = [div["data-asin"] for div in soup.select('.s-result-item[data-asin]')]
         asin_list = [x for x in data_asin_list if x]
+        price_pattern = r'<span class="a-price-whole">(\d+)<span class="a-price-decimal">([,.])</span></span>'
         url_matches = []
         for div in soup.select('.s-result-item[data-asin]'):
             anchor_tag = div.find('a', class_='a-link-normal s-no-outline')
@@ -171,37 +172,46 @@ class Scrapers():
                 new_urls = []
                 for i, u in enumerate(url_matches):
                     try:
-                        deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price-whole"}).findAll('span').text
-                        if '\xa0' in deal_price:
-                            deal_price = deal_price.replace('\xa0', ' ')
-                        self.logger.info(deal_price)
+                        deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
                     except:
                         deal_price = None
                     try:
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
                     except:
                         deal_title = None
-                    amaz = Amazon(deal_title, deal_price, u, None)
-                    if amaz.url not in [x.url for x in self.amazon_old]:
+                    # try:
+                    #     deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price-whole"}).findAll('span').text
+                    #     if '\xa0' in deal_price:
+                    #         deal_price = deal_price.replace('\xa0', ' ')
+                    #     self.logger.info(deal_price)
+                    # except:
+                    #     deal_price = None
+                    # try:
+                    #     deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
+                    # except:
+                    #     deal_title = None
+                    amaz = Amazon(deal_title, deal_price, u, None, asin_list[i])
+                    if amaz.asin not in [x.asin for x in self.amazon_old]:
                         product_asin = amaz.url.split("/")[-1]
                         try:
                             response = requests.get(f'{HAGGLEZON}{product_asin}', proxies=proxies, headers=random.choice(HEADERS), timeout=8)
-                            try:
-                                soup = BeautifulSoup(response.text, 'html.parser')
-                                list_prices = soup.find(attrs={"class":"search-results-container"}).find(attrs={"class":"list-prices"})
-                                country_list = [f.find('img')['alt'] for f in list_prices.findAll('figure', {'class': 'flag'})]
-                                price_list = [price.find('span', class_='price-value').text.replace('\xa0', ' ') for price in list_prices]
-                                combined_list = [f'amazon.{country} {price}' for country, price in zip(country_list, price_list)]
-                                hagglezon_result = '\n'.join(combined_list)
-                            except:
-                                hagglezon_result = 'ASIN was not found on hagglezon'
                         except:
                             hagglezon_result = 'Could not reach hagglezon'
+                        try:
+                            soup = BeautifulSoup(response.text, 'html.parser')
+                            list_prices = soup.find(attrs={"class":"search-results-container"}).find(attrs={"class":"list-prices"})
+                            country_list = [f.find('img')['alt'] for f in list_prices.findAll('figure', {'class': 'flag'})]
+                            country_list = ["co.uk" if item == "en" else item for item in country_list]
+                            price_list = [price.find('span', class_='price-value').text.replace('\xa0', ' ') for price in list_prices]
+                            combined_list = [f'amazon.{country} {price}' for country, price in zip(country_list, price_list)]
+                            hagglezon_result = '\n'.join(combined_list)
+                        except:
+                            hagglezon_result = 'ASIN was not found on hagglezon'
                         
                         if amaz.price == None or amaz.name == None:
                             return
                         else:
-                            new_amaz = Amazon(amaz.name, amaz.price, amaz.url, hagglezon_result)
+                            new_amaz = Amazon(amaz.name, amaz.price, amaz.url, hagglezon_result, amaz.asin)
                             new_urls.append(new_amaz)
                             self.amazon_old.append(new_amaz)
                         
@@ -211,47 +221,52 @@ class Scrapers():
                 elif new_urls:
                     self.logger.info("Found new deals!")
                     self.amazon = new_urls
+
             else:
                 try:
                     driver.get(f'{os.getenv(AMAZON_LINK)}&page=2')
                     WebDriverWait(driver, 8).until(EC.title_contains("Amazon.se : *"))
                     response_page2 = driver.page_source
                 except Exception as e:
-                    self.logger.info(e)
-                    return self.amazon
+                    self.logger.error(e)
+                    return
                 finally:
                     driver.quit()
                 soup_page2 = BeautifulSoup(response_page2, 'html.parser')
-                data_asin_list = [div["data-asin"] for div in soup_page2.select('.s-result-item[data-asin]')]
-                asin_list = [x for x in data_asin_list if x]
-                page2_urls = []
+                data_asin_list2 = [div["data-asin"] for div in soup_page2.select('.s-result-item[data-asin]')]
+                asin_list2 = [x for x in data_asin_list2 if x]
+                url_matches2 = []
                 for div in soup_page2.select('.s-result-item[data-asin]'):
                     anchor_tag = div.find('a', class_='a-link-normal s-no-outline')
                     if anchor_tag:
                         href_link = anchor_tag.get('href')
                         clean_url = href_link.split('/ref=')[0]
-                        page2_urls.append(f'https://www.amazon.se{clean_url}')
-                for i, u in enumerate(page2_urls):
+                        url_matches2.append(f'https://www.amazon.se{clean_url}')
+                for i, u in enumerate(url_matches2):
                     try:
-                        deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
+                        deal_price = soup_page2.find('div', {'data-asin': asin_list2[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
                     except:
                         deal_price = None
                     try:
-                        deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
+                        deal_title = soup_page2.find('div', {'data-asin': asin_list2[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
                     except:
                         deal_title = None
-                    amaz = Amazon(deal_title, deal_price, u, None)
+                    amaz = Amazon(deal_title, deal_price, u, None, asin_list2[i])
                     self.amazon_old.append(amaz)
                 for i, u in enumerate(url_matches):
                     try:
-                        deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
+                        # deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
+                        div_element = soup.find('div', {'data-asin': asin_list[i]})
+                        match = re.search(price_pattern, div_element)
+                        self.logger.info(f"Price match {match}")
+                        
                     except:
                         deal_price = None
                     try:
                         deal_title = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"s-title-instructions-style"}).find('h2').text
                     except:
                         deal_title = None
-                    amaz = Amazon(deal_title, deal_price, u, None)
+                    amaz = Amazon(deal_title, deal_price, u, None, asin_list[i])
                     self.amazon_old.append(amaz)
         self.logger.info(f'Scraped amazon.se: {self.amazon}')
         return self.amazon

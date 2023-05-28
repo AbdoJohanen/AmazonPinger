@@ -1,10 +1,6 @@
 from discord.ext import tasks, commands
-import asyncio, logging, subprocess
+import asyncio, logging
 from scrapers import Scrapers
-
-
-def drop_caches():
-    subprocess.run(['sudo', 'sh', '-c', 'echo 3 > /proc/sys/vm/drop_caches'])
 
 
 class DealsCog(commands.Cog):
@@ -33,7 +29,6 @@ class DealsCog(commands.Cog):
             self.logger.error(f'Failed to scrape: amazon.se')
             self.logger.error(e)
             
-        asyncio.create_task(drop_caches())
 
     @scrape.before_loop
     async def before_printer(self):

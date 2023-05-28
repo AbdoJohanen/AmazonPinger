@@ -171,9 +171,10 @@ class Scrapers():
                 new_urls = []
                 for i, u in enumerate(url_matches):
                     try:
-                        deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price"}).findAll('span')[0].text
+                        deal_price = soup.find('div', {'data-asin': asin_list[i]}).find(attrs={"class":"a-price-whole"}).findAll('span').text
                         if '\xa0' in deal_price:
                             deal_price = deal_price.replace('\xa0', ' ')
+                        self.logger.info(deal_price)
                     except:
                         deal_price = None
                     try:

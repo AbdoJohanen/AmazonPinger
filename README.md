@@ -1,4 +1,6 @@
-# AmazonPinger\
+# AmazonPinger
+An amazon scraper that pings in discord when a new amazon deal is posted
+
 Requires .env with following information:\
 TOKEN = 'DISCORD TOKEN'\
 SWEDROID_USERNAME = ''\
